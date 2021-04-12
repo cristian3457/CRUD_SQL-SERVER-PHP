@@ -5,10 +5,6 @@
 ?>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <title>Editar Usuario</title>
 </head>
 <body>
@@ -24,6 +20,7 @@
 			$usuario = $fila['usuario'];
 			$password = $fila['password'];
 			$email = $fila['email'];
+			$img = $fila['img'];
 		}
 
 ?>
@@ -32,21 +29,39 @@
 
 <div class="col-md-8 offset-md-2">
 <h1 class="text-uppercase text-center mb-3">Registrar Usuario</h1>
-		<form method="POST" action="">
+		<form method="POST" enctype="multipart/form-data" class="mt-5">
+			<div class="row ml-2 mb-4">
+				<div class="custom-file col-12 col-md-9">
+					<input type="file" class="custom-file-input" name="archivo" id="archivo">
+					<label class="custom-file-label" for="archivo">Imagen Usuario</label>
+				</div>
+				<div class="col-12 col-md-3">
+                    <img class="img-thumbnail w-25" id="imgUsuario" src="../images/noImage/no-image.jpg" alt="imagen seleccionada">
+                </div>
+			</div>
 			<div class="form-group">
 				<label>Nombre:</label>
-				<input type="text" name="nombre" class="form-control" value="<?php echo $usuario; ?>"><br />
+				<input type="text" id="nombre" require minlength="4" name="nombre" class="form-control" value="<?php echo $usuario; ?>">
+				<div id="validationNombre" class="invalid-feedback" hidden="true">
+					<span>Ingresa al menos 4 caracteres </span>
+				</div>
 			</div>
 			<div class="form-group">
 				<label>Contraseña:</label>
-				<input type="text" name="passw" class="form-control" value="<?php echo $password; ?>"><br />
+				<input type="password" id="passw" name="passw" require minlength="8" maxlength="16" class="form-control" value="<?php echo $password; ?>">
+				<div id="validationPassw" class="invalid-feedback" hidden="true">
+					<span>Ingresa al menos 8 caracteres </span>
+				</div>
 			</div>
 			<div class="form-group">
 				<label>Email:</label>
-				<input type="text" name="email" class="form-control" value="<?php echo $email; ?>"><br />
+				<input type="email" id="email" name="email" require minlength="4" class="form-control" value="<?php echo $email; ?>">
+				<div id="validationEmail" class="invalid-feedback" hidden="true">
+					<span>Ingresa un correo valido </span>
+				</div>
 			</div>
 			<div class="form-group text-center">				
-				<input type="submit" name="actualizar" class="btn btn-warning" value="ACTUALIZAR DATOS"><br />
+				<input type="submit" id="actualizar" name="actualizar" class="btn btn-warning" value="ACTUALIZAR DATOS">
 			</div>
 		</form>
 </div>
@@ -63,13 +78,84 @@
 			$ejecutar = sqlsrv_query($con, $consulta);
 
 			if($ejecutar){
-				echo "<script>alert('Datos actualizados')</script>";
-				echo "<script>window.open('listaUsuarios.php', '_self')</script>";
+				$tabla = 'usuarios';
+				$campo = 'img';
+				$archivo = $_FILES['archivo']['name'];
+				if (isset($archivo) && $archivo != "") {
+					$id_usuario = $editar_id;
+					$nombre_post = 'actualizar';
+					require('../upload/subirImagen.php');
+				}else{
+					?>
+					<script>showNotification('top', 'center', 'success', 'Usuario actualizado correctamente');</script>
+					<?php
+					echo "<script>window.open('listaUsuarios.php', '_self')</script>";
+				}
 			}			
 		}
 
 ?>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+<script> 
+srcImagen = '../images/usuarios/<?php echo $img; ?>';
+$('#imgUsuario').attr('src', srcImagen);
+nombreValido = true;
+emailValido = true;
+passwordValido = true;
+$("#archivo").on('change', function(e) {
+	  if( e.target.files.length > 0 ){
+		  // Obtenemos la ruta temporal mediante el evento
+		  var TmpPath = URL.createObjectURL(e.target.files[0]);
+		  $('#imgUsuario').attr('src', TmpPath);
+	  }
+	  habilitaBoton();
+  });
+  $("#nombre").keyup(function(e) {
+	var nombre = $(this).val();
+	if(nombre.length < 4){
+		$("#nombre").addClass('is-invalid');
+		$("#validationNombre").attr('hidden', false);
+		nombreValido = false;
+	}else{
+		$("#nombre").removeClass('is-invalid');
+		$("#nombre").addClass('is-valid');
+		nombreValido = true;
+	}
+	habilitaBoton();
+  });
+  $("#passw").keyup(function(e) {
+	var passw = $(this).val();
+	if(passw.length < 8){
+		$("#passw").addClass('is-invalid');
+		$("#validationPassw").attr('hidden', false);
+		passwordValido = false;
+	}else{
+		$("#passw").removeClass('is-invalid');
+		$("#passw").addClass('is-valid');
+		passwordValido = true;
+	}
+	habilitaBoton();
+  });
+  $("#email").keyup(function(e) {
+	var email = $(this).val();
+	var expregEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/;
+	if(!expregEmail.test(email)){
+		$("#email").addClass('is-invalid');
+		$("#validationEmail").attr('hidden', false);
+		emailValido = false;
+	}else{
+		$("#email").removeClass('is-invalid');
+		$("#email").addClass('is-valid');
+		emailValido = true;
+	}
+	habilitaBoton();
+  });
+function habilitaBoton(){
+  if( nombreValido && passwordValido && emailValido){
+	$('#actualizar').attr('disabled', false);
+  }else{
+	$('#actualizar').attr('disabled', true);
+  }
+}
+</script>
 </body>
 </html>

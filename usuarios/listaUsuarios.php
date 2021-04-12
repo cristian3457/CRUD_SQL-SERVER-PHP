@@ -5,10 +5,6 @@
 ?>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <title>Lista Usuarios</title>
 </head>
 <body>
@@ -21,6 +17,7 @@
 			<td>Usuario</td>
 			<td>Password</td>
 			<td>Email</td>
+			<td>Imagen</td>
 			<td>Acción</td>
 			<td>Acción</td>
 		</tr>
@@ -37,6 +34,7 @@
 				$usuario = $fila['usuario'];
 				$password = $fila['password'];
 				$email = $fila['email'];
+				$img = $fila['img'];
 				// $i++;
 			
 
@@ -47,6 +45,7 @@
 			<td><?php echo $usuario; ?></td>
 			<td><?php echo $password; ?></td>
 			<td><?php echo $email; ?></td>
+			<td><img style="width:50px;" alt="imagen usuario" src="../images/usuarios/<?php echo $img; ?>"></td>
 			<td><a href="editar.php?editar=<?php echo $id; ?>">Editar</a></td>
 			<td><a href="listaUsuarios.php?borrar=<?php echo $id; ?>">Borrar</a></td>
 		</tr>
@@ -65,12 +64,12 @@
 			$ejecutar = sqlsrv_query($con, $borrar);
 
 			if($ejecutar){
-				echo "<script>alert('El usuario ha sido borrado')</script>";
+				?>
+				<script>showNotification('top', 'center', 'success', 'Usuario eliminado correctamente');</script>
+				<?php
 				echo "<script>window.open('listaUsuarios.php', '_self')</script>";
 			}	
 		}
 ?>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 </body>
 </html>
